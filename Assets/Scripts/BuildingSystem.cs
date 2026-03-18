@@ -103,7 +103,7 @@ public class BuildingSystem : MonoBehaviour {
             return;
         }
 
-        Vector3 worldPosition = worldGrid.GetPlacementWorldPosition(cell, prefab.size, rotationSteps);
+        Vector3 worldPosition = worldGrid.GetPlacementWorldPosition(cell, prefab.size, prefab.height, rotationSteps);
         Quaternion rotation = Quaternion.Euler(0f, rotationSteps * 90f, 0f);
 
         PlacedObject placed = Instantiate(prefab, worldPosition, rotation);
@@ -160,7 +160,7 @@ public class BuildingSystem : MonoBehaviour {
         bool canPlace = worldGrid.CanPlace(cell, prefab.size, prefab.height, rotationSteps);
 
         previewInstance.gameObject.SetActive(true);
-        previewInstance.transform.position = worldGrid.GetPlacementWorldPosition(cell, prefab.size, rotationSteps);
+        previewInstance.transform.position = worldGrid.GetPlacementWorldPosition(cell, prefab.size, prefab.height, rotationSteps);
         previewInstance.transform.rotation = Quaternion.Euler(0f, rotationSteps * 90f, 0f);
 
         ApplyPreviewMaterial(canPlace ? validPreviewMaterial : invalidPreviewMaterial);

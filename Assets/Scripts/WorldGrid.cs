@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using NUnit.Framework.Constraints;
 using UnityEngine;
 
 public class WorldGrid : MonoBehaviour {
@@ -10,7 +9,7 @@ public class WorldGrid : MonoBehaviour {
     [Min(1)] public int length = 100;
     [Min(1)] public int maxHeight = 8;
 
-    [Min(0.1f)] public float cellSize = 2f;
+    [Min(0.1f)] public float cellSize = 1f;
     [Min(0.1f)] public float cellHeight = 1f;
 
     public Vector3 origin = Vector3.zero;
@@ -45,12 +44,12 @@ public class WorldGrid : MonoBehaviour {
         return (rotationSteps % 2 == 0) ? size : new Vector2Int(size.y, size.x);
     }
 
-    public Vector3 GetPlacementWorldPosition(Vector3Int originCell, Vector2Int size, int rotationSteps) {
+    public Vector3 GetPlacementWorldPosition(Vector3Int originCell, Vector2Int size, int height, int rotationSteps) {
         Vector2Int rotatedSize = GetRotatedSize(size, rotationSteps);
         
         return origin + new Vector3(
             (originCell.x + rotatedSize.x * 0.5f) * cellSize,
-            originCell.y * cellHeight,
+            (originCell.y * cellHeight * 0.5f) * cellHeight,
             (originCell.z + rotatedSize.y * 0.5f) * cellSize
         );
     }
@@ -121,7 +120,8 @@ public class WorldGrid : MonoBehaviour {
     private void OnDrawGizmos() {
         if (!drawGrid) return;
 
-        Gizmos.color = new Color(1f, 1f, 1f, 0.3f);
+        //Gizmos.color = new Color(1f, 1f, 1f, 0.3f);
+        Gizmos.color = Color.white;
 
         for (int x = 0; x <= width; x++) {
             Vector3 start = origin + new Vector3(x * cellSize, 0f, 0f);
@@ -140,7 +140,7 @@ public class WorldGrid : MonoBehaviour {
                 (cell.z + 0.5f) * cellSize
             );
 
-            Vector3 size = new Vector3(cellSize, cellHeight, cellSize) * 0.95f;
+            Vector3 size = new Vector3(cellSize, cellHeight, cellSize);
             Gizmos.DrawCube(center, size);
         }
     }
