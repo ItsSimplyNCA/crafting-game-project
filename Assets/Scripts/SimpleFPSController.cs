@@ -26,11 +26,15 @@ public class SimpleFPSController : MonoBehaviour {
             cameraHolder = Camera.main.transform;
         }
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        LockCursor();
     }
 
     private void Update() {
+        if (InventorySystem.Instance != null && InventorySystem.Instance.IsOpen) {
+            UnlockCursor();
+            return;
+        }
+
         Look();
         Move();
         HandleCursor();
@@ -75,13 +79,21 @@ public class SimpleFPSController : MonoBehaviour {
     private void HandleCursor() {
         if (Input.GetKeyDown(KeyCode.LeftAlt)) {
             bool wasLocked = Cursor.lockState == CursorLockMode.Locked;
-            Cursor.lockState = wasLocked ? CursorLockMode.None : CursorLockMode.Locked;
-            Cursor.visible = wasLocked;
+            if (wasLocked) UnlockCursor(); else LockCursor();
         }
 
         if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked) {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            LockCursor();
         }
+    }
+
+    private static void LockCursor() {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    private static void UnlockCursor() {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 }

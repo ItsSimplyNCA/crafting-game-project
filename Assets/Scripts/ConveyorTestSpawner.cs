@@ -4,6 +4,8 @@ public class ConveyorTestSpawner : MonoBehaviour {
     [Header("References")]
     [SerializeField] private Camera playerCamera;
     [SerializeField] private ConveyorItem itemPrefab;
+    [SerializeField] private InventoryItemData testItemData;
+    [SerializeField, Min(1)] private int testAmount = 1;
 
     [Header("Raycast")]
     [SerializeField] private float rayDistance = 8f;
@@ -23,6 +25,15 @@ public class ConveyorTestSpawner : MonoBehaviour {
     }
 
     private void SpawnOnLookedAtBelt() {
+        if (itemPrefab == null) {
+            Debug.LogError("ConveyorTestSpawner: nincs itemPrefab beállítva.");
+            return;
+        }
+
+        if (testItemData == null) {
+            Debug.LogError("ConveyorTestSpawner: nincs testItemData beállítva.");
+        }
+        
         if (playerCamera == null) {
             Debug.LogWarning("ConveyorTestSpawner: nincs beállítva kamera.");
             return;
@@ -48,6 +59,7 @@ public class ConveyorTestSpawner : MonoBehaviour {
 
         Vector3 spawnPos = belt.transform.position;
         ConveyorItem item = Instantiate(itemPrefab, spawnPos, Quaternion.identity);
+        item.Setup(testItemData, testAmount);
 
         bool inserted = belt.TryInsertItem(item, 0f, null);
 

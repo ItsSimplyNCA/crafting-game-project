@@ -424,22 +424,12 @@ public class ConveyorBelt : PlacedObject
         items.RemoveAll(i => i == null);
     }
 
-    private void OnDestroy()
-    {
-        if (WorldGrid.Instance != null)
-        {
+    private void OnDestroy() {
+        if (WorldGrid.Instance != null) {
             WorldGrid.Instance.UnregisterObject(this);
         }
 
-        if (!Application.isPlaying) return;
-
-        for (int i = items.Count - 1; i >= 0; i--)
-        {
-            if (items[i] != null && items[i].CurrentBelt == this)
-            {
-                items[i].DetachFromBelt(true);
-            }
-        }
+        CleanupNulls();
     }
 
     private bool CanOutputTo(ConveyorBelt other) {
@@ -462,6 +452,194 @@ public class ConveyorBelt : PlacedObject
 
         if (otherExitDist <= bestEntryDist + transferValidationEpsilon) return false;
 
+        return true;
+    }
+
+    public bool TryCollectItemsToInventory() {
+        InventorySystem inventory = InventorySystem.Instance;
+        if (inventory == null) {
+            Debug.LogError("ConveyorBelt: nincs InventorySystem a scene-ben.");
+            return false;
+        }
+
+        ConveyorItem[] childItems = GetComponentsInChildren<ConveyorItem>(true);
+
+        if (childItems.Length == 0) return true;
+
+        if (!CanFitAllItemsInInventory(inventory, childItems)) {
+            Debug.LogWarning("ConveyorBelt: nincs elég hely az inventoryban.");
+            return false;
+        }
+
+        for (int i = 0; i < childItems.Length; i++) {
+            ConveyorItem item = childItems[i];
+
+            if (item == null) continue;
+
+            if (item.ItemData == null) {
+                Debug.LogError($"ConveyorBelt: {item.name} itemhez nincs ItemData rendelve.", item);
+                return false;
+            }
+
+            if (!inventory.AddItem(item.ItemData, item.Amount)) {
+                Debug.LogError($"ConveyorBelt: nem sikerült inventoryba tenni ezt: {item.ItemData.itemName}", item);
+                return false;
+            }
+        }
+
+        for (int i = 0; i < childItems.Length; i++) {
+            ConveyorItem item = childItems[i];
+
+            if (item == null) continue;
+
+            items.Remove(item);
+            Destroy(item.gameObject);
+        }
+
+        return true;
+    }
+
+    private List<ConveyorItem> GetPickupItemsOnTop() {
+        HashSet<ConveyorItem> found = new();
+
+        float cellSize = WorldGrid.Instance != null ? WorldGrid.Instance.cellSize : 1f;
+        Vector3 halfExtents = new Vector3(cellSize * 0.45f, 0.5f, cellSize * 0.45f);
+        Vector3 center = transform.position + Vector3.up * 0.35f;
+
+        Collider[] hits = Physics.OverlapBox(
+            center,
+            halfExtents,
+            transform.rotation,
+            ~0,
+            QueryTriggerInteraction.Collide
+        );
+
+        for (int i = 0; i < hits.Length; i++) {
+            ConveyorItem item = hits[i].GetComponentInParent<ConveyorItem>();
+            if (item == null) continue;
+
+            found.Add(item);
+        }
+
+        return new List<ConveyorItem>(found);
+    }
+
+    private void RebuildItemsFromScene() {
+        items.Clear();
+
+        ConveyorItem[] allItems = FindObjectsByType<ConveyorItem>(FindObjectsSortMode.None);
+
+        foreach (ConveyorItem item in allItems) {
+            if (item == null) continue;
+            if (item.CurrentBelt == this) items.Add(item);
+        }
+    }
+
+    private bool CanFitAllItemsInInventory(InventorySystem inventory, ConveyorItem[] pickupItems) {
+        List<InventorySlotData> simulatedSlots = new List<InventorySlotData>(inventory.Slots.Count);
+
+        foreach (InventorySlotData slot in inventory.Slots) {
+            InventorySlotData copy = new InventorySlotData();
+
+            if (slot != null && !slot.IsEmpty) {
+                copy.Set(slot.item, slot.amount);
+            }
+
+            simulatedSlots.Add(copy);
+        }
+
+        for (int i = 0; i < pickupItems.Length; i++) {
+            ConveyorItem item = pickupItems[i];
+            if (item == null || item.ItemData == null || item.Amount <= 0) continue;
+            if (!TrySimulateAdd(simulatedSlots, item.ItemData, item.Amount)) return false;
+        }
+
+        return true;
+    }
+
+    private bool TrySimulateAdd(List<InventorySlotData> simulatedSlots, InventoryItemData item, int amount) {
+        int remaining = amount;
+
+        for (int i = 0; i < simulatedSlots.Count; i++) {
+            InventorySlotData slot = simulatedSlots[i];
+
+            if (slot.IsEmpty || slot.item != item || slot.amount >= item.maxStack) continue;
+
+            int addAmount = Mathf.Min(remaining, item.maxStack - slot.amount);
+            slot.amount += addAmount;
+            remaining -= addAmount;
+
+            if (remaining <= 0) return true;
+        }
+
+        for (int i = 0; i < simulatedSlots.Count; i++) {
+            InventorySlotData slot = simulatedSlots[i];
+
+            if (!slot.IsEmpty) continue;
+
+            int addAmount = Mathf.Min(remaining, item.maxStack);
+            slot.Set(item, addAmount);
+            remaining -= addAmount;
+
+            if (remaining <= 0) return true;
+        }
+
+        return false;
+    }
+
+    public bool TryPickupItemsAndDestroy() {
+        InventorySystem inventory = InventorySystem.Instance;
+        if (inventory == null) {
+            Debug.LogError("ConveyorBelt: nincs InventorySystem a scene-ben.");
+            return false;
+        }
+
+        ConveyorItem[] childItems = GetComponentsInChildren<ConveyorItem>(true);
+
+        for (int i = 0; i < childItems.Length; i++) {
+            ConveyorItem item = childItems[i];
+            if (item == null) continue;
+
+            if (item.ItemData == null) {
+                Debug.LogError($"ConveyorBelt: {item.name} itemhez nincs ItemData rendelve.", item);
+                return false;
+            }
+
+            if (item.Amount <= 0) {
+                Debug.LogError($"ConveyorBelt: {item.name} amount <= 0.", item);
+                return false;
+            }
+        }
+
+        if (!CanFitAllItemsInInventory(inventory, childItems)) {
+            Debug.LogWarning("ConveyorBelt: nincs elég hely az invetoryban.");
+        }
+
+        for (int i = 0; i < childItems.Length; i++) {
+            ConveyorItem item = childItems[i];
+            if (item == null) continue;
+
+            bool added = inventory.AddItem(item.ItemData, item.Amount);
+            if (!added) {
+                Debug.LogError($"ConveyorBelt: nem sikerült inventoryba tenni ezt: {item.ItemData.itemName}", item);
+                return false;
+            }
+        }
+
+        for (int i = 0; i < childItems.Length; i++) {
+            ConveyorItem item = childItems[i];
+
+            if (item == null) continue;
+
+            items.Remove(item);
+            Destroy(item.gameObject);
+        }
+
+        if (WorldGrid.Instance != null) {
+            WorldGrid.Instance.UnregisterObject(this);
+        }
+
+        Destroy(gameObject);
         return true;
     }
 

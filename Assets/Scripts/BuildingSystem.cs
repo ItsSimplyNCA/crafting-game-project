@@ -30,6 +30,13 @@ public class BuildingSystem : MonoBehaviour {
     }
 
     private void Update() {
+        if (InventorySystem.Instance != null && InventorySystem.Instance.IsOpen) {
+            if (previewInstance != null) {
+                previewInstance.gameObject.SetActive(false);
+            }
+            return;
+        }
+
         if (placeablePrefabs == null || placeablePrefabs.Length == 0 || worldGrid == null || playerCamera == null) {
             return;
         }
@@ -118,7 +125,14 @@ public class BuildingSystem : MonoBehaviour {
 
         if (placed == null) return;
 
-        if (previewInstance != null && placed.gameObject == previewInstance.gameObject) {
+        if (previewInstance != null && placed.gameObject == previewInstance.gameObject) return;
+
+        ConveyorBelt belt = placed as ConveyorBelt;
+        if (belt != null) {
+            if (!belt.TryCollectItemsToInventory()) return;
+
+            worldGrid.UnregisterObject(placed);
+            Destroy(placed.gameObject);
             return;
         }
 
