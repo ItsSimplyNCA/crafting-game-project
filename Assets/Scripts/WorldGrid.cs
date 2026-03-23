@@ -109,11 +109,8 @@ public class WorldGrid : MonoBehaviour {
         );
 
         foreach (Vector3Int cell in cells) {
-            //Debug.Log(occupiedCells.TryGetValue(cell, out PlacedObject test));
-            //Debug.Log($"TEST: {test} | PLACED OBJECT: {placedObject}");
             if (occupiedCells.TryGetValue(cell, out PlacedObject existing)) {
                 if (existing == placedObject || existing.gameObject == placedObject.gameObject) {
-                    Debug.Log($"WorldGrid.UnregisterObject: {cell}");
                     occupiedCells.Remove(cell);
                 }
             }

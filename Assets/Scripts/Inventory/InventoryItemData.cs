@@ -11,6 +11,9 @@ public class InventoryItemData : ScriptableObject {
     [Header("Stacking")]
     [Min(1)] public int maxStack = 99;
 
-    [Header("World")]
+    [Header("World Visual")]
     public GameObject worldModelPrefab;
+
+    [Header("World Runtime")]
+    public ConveyorItem conveyorItemPrefab;
 }

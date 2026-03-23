@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6360ef9785a673d4c842273156ed0c64, type: 3}
-  m_Name: Wood
+  m_Name: Ore
   m_EditorClassIdentifier: Assembly-CSharp::InventoryItemData
-  itemName: Wood
-  icon: {fileID: -373545229, guid: 11d3636f665fa0447b38e18842318698, type: 3}
+  itemName: Ore
+  icon: {fileID: 227863987, guid: 8fddc74c15f259349bbd04a75f381be7, type: 3}
   maxStack: 99
-  worldModelPrefab: {fileID: 388278366851499966, guid: 8d002ccb614e5ca42be78962d6c8a62e, type: 3}
+  worldModelPrefab: {fileID: 0}

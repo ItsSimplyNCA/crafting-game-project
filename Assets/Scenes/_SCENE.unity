@@ -933,8 +933,8 @@ Transform:
   m_GameObject: {fileID: 1043248717}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8, y: 1.98, z: 7.33}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 8, y: 2, z: 0}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 330585546}
@@ -976,7 +976,7 @@ MonoBehaviour:
     m_Bits: 768
   maxBuildDistance: 8
   placeablePrefabs:
-  - {fileID: 8363827158451179027, guid: e0e3dcc3824193242842e29c9ab578b0, type: 3}
+  - {fileID: -3032646424340173990, guid: e0e3dcc3824193242842e29c9ab578b0, type: 3}
   - {fileID: 8363827158451179027, guid: d92be2a633583a3428bf19b0705b8711, type: 3}
   - {fileID: 1514065215619340206, guid: 4c10e87be877c534ab1fe5cd35b4a970, type: 3}
   validPreviewMaterial: {fileID: 2100000, guid: b0c8d35552d8d734b8880268e0b38842, type: 2}
