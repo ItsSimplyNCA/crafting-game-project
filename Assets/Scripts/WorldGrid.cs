@@ -82,7 +82,9 @@ public class WorldGrid : MonoBehaviour {
         foreach (Vector3Int cell in cells) {
             if (!IsInsideGrid(cell)) return false;
             if (occupiedCells.ContainsKey(cell)) return false;
-        } return true;
+        }
+        
+        return true;
     }
 
     public void RegisterObject(PlacedObject placedObject) {
@@ -107,8 +109,13 @@ public class WorldGrid : MonoBehaviour {
         );
 
         foreach (Vector3Int cell in cells) {
-            if (occupiedCells.TryGetValue(cell, out PlacedObject existing) && existing == placedObject) {
-                occupiedCells.Remove(cell);
+            //Debug.Log(occupiedCells.TryGetValue(cell, out PlacedObject test));
+            //Debug.Log($"TEST: {test} | PLACED OBJECT: {placedObject}");
+            if (occupiedCells.TryGetValue(cell, out PlacedObject existing)) {
+                if (existing == placedObject || existing.gameObject == placedObject.gameObject) {
+                    Debug.Log($"WorldGrid.UnregisterObject: {cell}");
+                    occupiedCells.Remove(cell);
+                }
             }
         }
     }
@@ -120,8 +127,7 @@ public class WorldGrid : MonoBehaviour {
     private void OnDrawGizmos() {
         if (!drawGrid) return;
 
-        //Gizmos.color = new Color(1f, 1f, 1f, 0.3f);
-        Gizmos.color = Color.white;
+        Gizmos.color = new Color(1f, 1f, 1f, 0.3f);
 
         for (int x = 0; x <= width; x++) {
             Vector3 start = origin + new Vector3(x * cellSize, 0f, 0f);

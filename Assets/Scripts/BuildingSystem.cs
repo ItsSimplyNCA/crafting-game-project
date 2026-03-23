@@ -121,20 +121,14 @@ public class BuildingSystem : MonoBehaviour {
     }
 
     private void TryRemove(RaycastHit hit) {
-        PlacedObject placed = hit.collider.GetComponentInParent<PlacedObject>();
+        ConveyorBelt belt = hit.collider.GetComponentInParent<ConveyorBelt>();
+        PlacedObject placed = belt != null ? belt : hit.collider.GetComponentInParent<PlacedObject>();
 
         if (placed == null) return;
 
         if (previewInstance != null && placed.gameObject == previewInstance.gameObject) return;
 
-        ConveyorBelt belt = placed as ConveyorBelt;
-        if (belt != null) {
-            if (!belt.TryCollectItemsToInventory()) return;
-
-            worldGrid.UnregisterObject(placed);
-            Destroy(placed.gameObject);
-            return;
-        }
+        if (belt != null && !belt.TryCollectItemsToInventory()) return;
 
         worldGrid.UnregisterObject(placed);
         Destroy(placed.gameObject);

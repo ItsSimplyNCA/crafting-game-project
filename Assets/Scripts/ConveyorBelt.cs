@@ -463,8 +463,24 @@ public class ConveyorBelt : PlacedObject
         }
 
         ConveyorItem[] childItems = GetComponentsInChildren<ConveyorItem>(true);
+        //Debug.Log($"ConveyorBelt: a talált itemek száma: {childItems.Length}");
 
         if (childItems.Length == 0) return true;
+
+        for (int i = 0; i < childItems.Length; i++) {
+            ConveyorItem item = childItems[i];
+            if (item == null) continue;
+
+            if (item.ItemData == null) {
+                Debug.LogError($"ConveyorBelt: {item.name} itemhez nincs ItemData rendelve.", item);
+                return false;
+            }
+
+            if (item.Amount <= 0) {
+                Debug.LogError($"ConveyorBelt: {item.name} amount <= 0.", item);
+                return false;
+            }
+        }
 
         if (!CanFitAllItemsInInventory(inventory, childItems)) {
             Debug.LogWarning("ConveyorBelt: nincs elég hely az inventoryban.");
@@ -473,15 +489,10 @@ public class ConveyorBelt : PlacedObject
 
         for (int i = 0; i < childItems.Length; i++) {
             ConveyorItem item = childItems[i];
-
             if (item == null) continue;
 
-            if (item.ItemData == null) {
-                Debug.LogError($"ConveyorBelt: {item.name} itemhez nincs ItemData rendelve.", item);
-                return false;
-            }
-
-            if (!inventory.AddItem(item.ItemData, item.Amount)) {
+            bool added = inventory.AddItem(item.ItemData, item.Amount);
+            if (!added) {
                 Debug.LogError($"ConveyorBelt: nem sikerült inventoryba tenni ezt: {item.ItemData.itemName}", item);
                 return false;
             }
@@ -489,7 +500,6 @@ public class ConveyorBelt : PlacedObject
 
         for (int i = 0; i < childItems.Length; i++) {
             ConveyorItem item = childItems[i];
-
             if (item == null) continue;
 
             items.Remove(item);
@@ -497,42 +507,6 @@ public class ConveyorBelt : PlacedObject
         }
 
         return true;
-    }
-
-    private List<ConveyorItem> GetPickupItemsOnTop() {
-        HashSet<ConveyorItem> found = new();
-
-        float cellSize = WorldGrid.Instance != null ? WorldGrid.Instance.cellSize : 1f;
-        Vector3 halfExtents = new Vector3(cellSize * 0.45f, 0.5f, cellSize * 0.45f);
-        Vector3 center = transform.position + Vector3.up * 0.35f;
-
-        Collider[] hits = Physics.OverlapBox(
-            center,
-            halfExtents,
-            transform.rotation,
-            ~0,
-            QueryTriggerInteraction.Collide
-        );
-
-        for (int i = 0; i < hits.Length; i++) {
-            ConveyorItem item = hits[i].GetComponentInParent<ConveyorItem>();
-            if (item == null) continue;
-
-            found.Add(item);
-        }
-
-        return new List<ConveyorItem>(found);
-    }
-
-    private void RebuildItemsFromScene() {
-        items.Clear();
-
-        ConveyorItem[] allItems = FindObjectsByType<ConveyorItem>(FindObjectsSortMode.None);
-
-        foreach (ConveyorItem item in allItems) {
-            if (item == null) continue;
-            if (item.CurrentBelt == this) items.Add(item);
-        }
     }
 
     private bool CanFitAllItemsInInventory(InventorySystem inventory, ConveyorItem[] pickupItems) {
