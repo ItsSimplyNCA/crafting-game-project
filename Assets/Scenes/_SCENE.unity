@@ -977,7 +977,7 @@ MonoBehaviour:
   maxBuildDistance: 8
   placeablePrefabs:
   - {fileID: -3032646424340173990, guid: e0e3dcc3824193242842e29c9ab578b0, type: 3}
-  - {fileID: 8363827158451179027, guid: d92be2a633583a3428bf19b0705b8711, type: 3}
+  - {fileID: 6630508746991191154, guid: a06b1d01083d2664aba5d3fda4353601, type: 3}
   - {fileID: 8426052558568221591, guid: 4c10e87be877c534ab1fe5cd35b4a970, type: 3}
   validPreviewMaterial: {fileID: 2100000, guid: b0c8d35552d8d734b8880268e0b38842, type: 2}
   invalidPreviewMaterial: {fileID: 2100000, guid: 7197f3f4716f1744199a3d24c982c3d9, type: 2}

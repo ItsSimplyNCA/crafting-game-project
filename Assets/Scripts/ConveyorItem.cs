@@ -69,6 +69,18 @@ public class ConveyorItem : MonoBehaviour {
         }
     }
 
+    public bool RemoveFromStack(int removeAmount) {
+        if (removeAmount <= 0) return false;
+        if (amount < removeAmount) return false;
+
+        amount -= removeAmount;
+        return true;
+    }
+
+    public bool CanStackWith(InventoryItemData otherItem) {
+        return itemData != null && itemData == otherItem;
+    }
+
     [ContextMenu("Refresh Visual")]
     public void RefreshVisual() {
         ClearVisual();

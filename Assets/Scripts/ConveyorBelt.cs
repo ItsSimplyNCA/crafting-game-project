@@ -30,6 +30,7 @@ public class ConveyorBelt : PlacedObject
     [SerializeField] private LayerMask beltDetectionMask = ~0;
     [SerializeField] private float oppositeFacingDotThreshold = -0.75f;
     [SerializeField] private float transferValidationEpsilon = 0.01f;
+    [SerializeField] private float extractReadyThreshold = 0.06f;
 
     private readonly List<ConveyorItem> items = new();
 
@@ -615,6 +616,48 @@ public class ConveyorBelt : PlacedObject
 
         Destroy(gameObject);
         return true;
+    }
+
+    public bool TryExtractReadyItem(InventoryItemData requestedItem, out InventoryItemData extractedItem) {
+        extractedItem = null;
+
+        CleanupNulls();
+
+        ConveyorItem candidate = GetFrontMostExtractableItem(requestedItem);
+        if (candidate == null) return false;
+
+        extractedItem = candidate.ItemData;
+
+        if (candidate.Amount > 1) {
+            candidate.RemoveFromStack(1);
+        } else {
+            RemoveItem(candidate, false);
+            Destroy(candidate.gameObject);
+        }
+
+        return true;
+    }
+
+    private ConveyorItem GetFrontMostExtractableItem(InventoryItemData requestedItem) {
+        ConveyorItem best = null;
+        float bestRemainingDistance = float.MaxValue;
+
+        foreach (ConveyorItem item in items) {
+            if (item == null) continue;
+            if (requestedItem != null && item.ItemData != requestedItem) continue;
+
+            float remainingDistance = GetRemainingDistance(item);
+            float allowedRemaining = endStopOffset + extractReadyThreshold;
+
+            if (remainingDistance > allowedRemaining) continue;
+
+            if (remainingDistance < bestRemainingDistance) {
+                bestRemainingDistance = remainingDistance;
+                best = item;
+            }
+        }
+
+        return best;
     }
 
     private void OnDrawGizmosSelected()

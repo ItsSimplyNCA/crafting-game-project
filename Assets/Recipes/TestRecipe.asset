@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb70119f65c0c0b4ba74a618aef6c473, type: 3}
+  m_Name: TestRecipe
+  m_EditorClassIdentifier: Assembly-CSharp::CrafterRecipeSO
+  recipeName: Test Recipe
+  icon: {fileID: -373545229, guid: 11d3636f665fa0447b38e18842318698, type: 3}
+  inputItem: {fileID: 11400000, guid: 362cc043398d81142b5ee1eac0d4a465, type: 2}
+  inputAmount: 1
+  outputItem: {fileID: 11400000, guid: db2ed6c9ab9a0b24bb1a91d4c9c711c9, type: 2}
+  outputAmount: 1
+  craftDuration: 2
