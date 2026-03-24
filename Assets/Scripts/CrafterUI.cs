@@ -62,7 +62,7 @@ public class CrafterUI : MonoBehaviour {
         UnbindMachine();
     }
 
-    private void Show(CrafterMachine machine) {
+    public void Show(CrafterMachine machine) {
         if (machine == null) return;
 
         if (currentMachine != machine) {
