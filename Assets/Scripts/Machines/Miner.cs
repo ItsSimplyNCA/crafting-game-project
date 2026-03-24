@@ -72,8 +72,12 @@ public class Miner : MachineBase {
         ConveyorItem spawnedItem = Instantiate(itemPrefab, spawnPos, Quaternion.identity);
         spawnedItem.Setup(slot.item, 1);
 
-        bool inserted = frontBelt.TryInsertItem(spawnedItem, 0f, null);
-        Debug.Log($"IsInsered: {inserted}");
+        bool inserted = frontBelt.TryInsertItem(
+            spawnedItem,
+            0f,
+            null,
+            outputPoint != null ? outputPoint.position : GetOutputSpawnPosition()
+        );
 
         if (!inserted) {
             Destroy(spawnedItem.gameObject);

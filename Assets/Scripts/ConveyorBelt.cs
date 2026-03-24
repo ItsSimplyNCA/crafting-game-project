@@ -89,20 +89,18 @@ public class ConveyorBelt : PlacedObject
         }
     }
 
-    public bool TryInsertItem(ConveyorItem item, float startDistance = 0f, ConveyorBelt sourceBelt = null)
-    {
+    public bool TryInsertItem(ConveyorItem item, float startDistance = 0f, ConveyorBelt sourceBelt = null, Vector3? sourceWorldPosition = null) {
         if (item == null) return false;
 
         CleanupNulls();
 
-        int entryIndex = ResolveEntryIndex(sourceBelt);
+        int entryIndex = ResolveEntryIndex(sourceBelt, sourceWorldPosition);
         startDistance = Mathf.Max(0f, startDistance);
 
         if (!CanAcceptAtDistance(startDistance, entryIndex))
             return false;
 
-        if (item.CurrentBelt != null && item.CurrentBelt != this)
-        {
+        if (item.CurrentBelt != null && item.CurrentBelt != this) {
             item.CurrentBelt.RemoveItem(item, false);
         }
 
@@ -188,21 +186,23 @@ public class ConveyorBelt : PlacedObject
         return maxAllowed;
     }
 
-    private int ResolveEntryIndex(ConveyorBelt sourceBelt)
-    {
-        if (sourceBelt == null)
-            return (int)EntryLane.Rear;
+    private int ResolveEntryIndex(ConveyorBelt sourceBelt, Vector3? sourceWorldPosition = null) {
+        Vector3 sourcePos;
 
-        Vector3 sourceExit = sourceBelt.GetExitPosition();
+        if (sourceBelt != null) {
+            sourcePos = sourceBelt.GetExitPosition();
+        } else if (sourceWorldPosition.HasValue) {
+            sourcePos = sourceWorldPosition.Value;
+        } else {
+            return (int)EntryLane.Rear;
+        }
 
         float bestDistance = float.MaxValue;
         int bestIndex = (int)EntryLane.Rear;
 
-        for (int i = 0; i < 3; i++)
-        {
-            float d = Vector3.Distance(sourceExit, GetEntryWorld(i));
-            if (d < bestDistance)
-            {
+        for (int i = 0; i < 3; i++) {
+            float d = Vector3.Distance(sourcePos, GetEntryWorld(i));
+            if (d < bestDistance) {
                 bestDistance = d;
                 bestIndex = i;
             }

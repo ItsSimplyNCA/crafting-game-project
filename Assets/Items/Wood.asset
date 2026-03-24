@@ -16,3 +16,4 @@ MonoBehaviour:
   icon: {fileID: -373545229, guid: 11d3636f665fa0447b38e18842318698, type: 3}
   maxStack: 99
   worldModelPrefab: {fileID: 388278366851499966, guid: 8d002ccb614e5ca42be78962d6c8a62e, type: 3}
+  conveyorItemPrefab: {fileID: 8277810337165624241, guid: 22e615c448a0fec47bbfb7cff61bf545, type: 3}

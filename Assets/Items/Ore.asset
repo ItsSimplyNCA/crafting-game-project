@@ -15,4 +15,5 @@ MonoBehaviour:
   itemName: Ore
   icon: {fileID: 227863987, guid: 8fddc74c15f259349bbd04a75f381be7, type: 3}
   maxStack: 99
-  worldModelPrefab: {fileID: 0}
+  worldModelPrefab: {fileID: 388278366851499966, guid: 517aa70072f48d54080aabc84e55ddeb, type: 3}
+  conveyorItemPrefab: {fileID: 8277810337165624241, guid: 2f157c755b007f440aa0f79895adc703, type: 3}
