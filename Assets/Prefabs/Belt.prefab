@@ -426,7 +426,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 301432036773726680}
-  - component: {fileID: 1514065215619340206}
   - component: {fileID: 8426052558568221591}
   m_Layer: 9
   m_Name: Belt
@@ -457,22 +456,6 @@ Transform:
   - {fileID: 5821229359349386745}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1514065215619340206
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7751647323241963499}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aefaf9ea40bbd3e44995f615f9215c60, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlacedObject
-  size: {x: 1, y: 1}
-  height: 1
-  originCell: {x: 0, y: 0, z: 0}
-  rotationSteps: 0
 --- !u!114 &8426052558568221591
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -504,6 +487,8 @@ MonoBehaviour:
   beltDetectionMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  oppositeFacingDotThreshold: -0.75
+  transferValidationEpsilon: 0.01
 --- !u!1 &9107334811578882714
 GameObject:
   m_ObjectHideFlags: 0
