@@ -670,7 +670,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InventorySystem
   rows: 5
   columns: 5
-  toggleKey: 9
   slots:
   - item: {fileID: 0}
     amount: 0
@@ -1673,6 +1672,7 @@ GameObject:
   - component: {fileID: 1043248721}
   - component: {fileID: 1043248720}
   - component: {fileID: 1043248719}
+  - component: {fileID: 1043248725}
   - component: {fileID: 1043248724}
   - component: {fileID: 1043248718}
   m_Layer: 0
@@ -1726,6 +1726,7 @@ MonoBehaviour:
   gravity: -25
   mouseSensitivity: 2.2
   maxLookAngle: 85
+  lockCursorOnStart: 1
 --- !u!136 &1043248720
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1829,7 +1830,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1043248717}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7f0d42f5da8af724f97ada90b816ddb3, type: 3}
   m_Name: 
@@ -1838,6 +1839,31 @@ MonoBehaviour:
   crafterUI: {fileID: 0}
   interactKey: 101
   interactDistance: 4
+  interactionMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!114 &1043248725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1043248717}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05e121283d6868546809a0f32e334658, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerModeController
+  playerCamera: {fileID: 330585545}
+  fpsController: {fileID: 1043248719}
+  buildingSystem: {fileID: 1164358603}
+  inventorySystem: {fileID: 437484497}
+  buildModeKey: 113
+  interactKey: 101
+  removeModeKey: 102
+  inventoryKey: 9
+  cancelKey: 27
+  interactionDistance: 4
   interactionMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -1972,6 +1998,9 @@ MonoBehaviour:
   placementMask:
     serializedVersion: 2
     m_Bits: 768
+  removeMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   maxBuildDistance: 8
   placeablePrefabs:
   - {fileID: -3032646424340173990, guid: e0e3dcc3824193242842e29c9ab578b0, type: 3}
