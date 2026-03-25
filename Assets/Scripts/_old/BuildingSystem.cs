@@ -2,10 +2,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class BuildingSystem : MonoBehaviour {
+    public enum ToolMode {
+        None,
+        Build,
+        Remove
+    }
+
     [Header("References")]
     [SerializeField] private Camera playerCamera;
     [SerializeField] private WorldGrid worldGrid;
     [SerializeField] private LayerMask placementMask;
+    [SerializeField] private LayerMask removeMask = ~0;
     [SerializeField] private float maxBuildDistance = 8f;
 
     [Header("Pleaceables")]
@@ -17,9 +24,14 @@ public class BuildingSystem : MonoBehaviour {
 
     private int selectedIndex = 0;
     private int rotationSteps = 0;
+    private ToolMode activeMode = ToolMode.None;
 
     private PlacedObject previewInstance;
     private readonly List<Renderer> previewRenderers = new();
+
+    public ToolMode ActiveMode => activeMode;
+    public bool IsBuildModeActive => activeMode == ToolMode.Build;
+    public bool IsRemoveModeActive => activeMode == ToolMode.Remove;
 
     private void Start() {
         if (playerCamera == null) playerCamera = Camera.main;
@@ -27,23 +39,54 @@ public class BuildingSystem : MonoBehaviour {
         if (placeablePrefabs != null && placeablePrefabs.Length > 0) {
             SelectPrefab(0);
         }
+
+        HidePreview();
     }
 
     private void Update() {
-        if (InventorySystem.Instance != null && InventorySystem.Instance.IsOpen) {
-            if (previewInstance != null) {
-                previewInstance.gameObject.SetActive(false);
-            }
-            return;
-        }
-
         if (placeablePrefabs == null || placeablePrefabs.Length == 0 || worldGrid == null || playerCamera == null) {
             return;
         }
 
-        HandleSelection();
-        HandleRotation();
-        HandleBuildAndRemove();
+        switch (activeMode) {
+            case ToolMode.Build:
+                HandleSelection();
+                HandleRotation();
+                HandleBuildMode();
+                break;
+            case ToolMode.Remove:
+                HandleRemoveMode();
+                break;
+            default:
+                HidePreview();
+                break;
+        }
+    }
+
+    public void EnterBuildMode() {
+        activeMode = ToolMode.Build;
+        EnsurePreviewExists();
+    }
+
+    public void ExitBuildMode() {
+        if (activeMode != ToolMode.Build) return;
+        activeMode = ToolMode.None;
+        HidePreview();
+    }
+
+    public void EnterRemoveMode() {
+        activeMode = ToolMode.Remove;
+        HidePreview();
+    }
+
+    public void ExitRemoveMode() {
+        if (activeMode != ToolMode.Remove) return;
+        activeMode = ToolMode.None;
+    }
+
+    public void CancelCurrentMode() {
+        activeMode = ToolMode.None;
+        HidePreview();
     }
 
     private void HandleSelection() {
@@ -70,12 +113,9 @@ public class BuildingSystem : MonoBehaviour {
         }
     }
 
-    private void HandleBuildAndRemove() {
-        if (!TryGetTargetCell(out RaycastHit hit, out Vector3Int targetCell)) {
-            if (previewInstance != null) {
-                previewInstance.gameObject.SetActive(false);
-            }
-
+    private void HandleBuildMode() {
+        if (!TryGetBuildTargetCell(out _, out Vector3Int targetCell)) {
+            HidePreview();
             return;
         }
 
@@ -84,13 +124,18 @@ public class BuildingSystem : MonoBehaviour {
         if (Input.GetMouseButtonDown(0)) {
             TryPlace(targetCell);
         }
-
-        if (Input.GetMouseButtonDown(1)) {
-            TryRemove(hit);
-        }
     }
 
-    private bool TryGetTargetCell(out RaycastHit hit, out Vector3Int cell) {
+    private void HandleRemoveMode() {
+        HidePreview();
+
+        if (!Input.GetMouseButtonDown(0)) return;
+        if (!TryGetRemoveHit(out RaycastHit hit)) return;
+
+        TryRemove(hit);
+    }
+
+    private bool TryGetBuildTargetCell(out RaycastHit hit, out Vector3Int cell) {
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
         if (Physics.Raycast(ray, out hit, maxBuildDistance, placementMask)) {
@@ -101,6 +146,11 @@ public class BuildingSystem : MonoBehaviour {
 
         cell = default;
         return false;
+    }
+
+    private bool TryGetRemoveHit(out RaycastHit hit) {
+        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        return Physics.Raycast(ray, out hit, maxBuildDistance, removeMask, QueryTriggerInteraction.Ignore);
     }
     
     private void TryPlace(Vector3Int cell) {
@@ -134,6 +184,12 @@ public class BuildingSystem : MonoBehaviour {
         Destroy(placed.gameObject);
     }
 
+    private void EnsurePreviewExists() {
+        if (previewInstance == null && placeablePrefabs != null && placeablePrefabs.Length > 0) {
+            CreatePreview();
+        }
+    }
+
     private void CreatePreview() {
         if (previewInstance != null) {
             Destroy(previewInstance.gameObject);
@@ -159,6 +215,7 @@ public class BuildingSystem : MonoBehaviour {
         previewRenderers.AddRange(previewInstance.GetComponentsInChildren<Renderer>());
 
         UpdatePreviewRotation();
+        HidePreview();
     }
     
     private void UpdatePreview(Vector3Int cell) {
@@ -178,6 +235,12 @@ public class BuildingSystem : MonoBehaviour {
         if (previewInstance == null) return;
 
         previewInstance.transform.rotation = Quaternion.Euler(0f, rotationSteps * 90f, 0f);
+    }
+
+    private void HidePreview() {
+        if (previewInstance != null) {
+            previewInstance.gameObject.SetActive(false);
+        }
     }
     
     private void ApplyPreviewMaterial(Material material) {

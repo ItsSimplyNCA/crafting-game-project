@@ -9,9 +9,6 @@ public class InventorySystem : MonoBehaviour {
     [SerializeField, Min(1)] private int rows = 5;
     [SerializeField, Min(1)] private int columns = 5;
 
-    [Header("Input")]
-    [SerializeField] private KeyCode toggleKey = KeyCode.Tab;
-
     [SerializeField] private List<InventorySlotData> slots = new();
 
     public event Action OnInventoryChanged;
@@ -36,10 +33,6 @@ public class InventorySystem : MonoBehaviour {
         rows = Mathf.Max(1, rows);
         columns = Mathf.Max(1, columns);
         EnsureSlotCount();
-    }
-
-    private void Update() {
-        if (Input.GetKeyDown(toggleKey)) Toggle();
     }
 
     public void Toggle() => SetOpen(!IsOpen);

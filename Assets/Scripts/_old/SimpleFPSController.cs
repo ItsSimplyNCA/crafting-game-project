@@ -14,10 +14,14 @@ public class SimpleFPSController : MonoBehaviour {
     [Header("Look")]
     [SerializeField] private float mouseSensitivity = 2.2f;
     [SerializeField] private float maxLookAngle = 85f;
+    [SerializeField] private bool lockCursorOnStart = true;
 
     private CharacterController controller;
     private float verticalVelocity;
     private float cameraPitch;
+    private bool inputEnabled = true;
+
+    public bool InputEnabled => inputEnabled;
 
     private void Awake() {
         controller = GetComponent<CharacterController>();
@@ -26,18 +30,22 @@ public class SimpleFPSController : MonoBehaviour {
             cameraHolder = Camera.main.transform;
         }
 
-        LockCursor();
+        if (lockCursorOnStart) {
+            LockCursor();
+        }
     }
 
     private void Update() {
-        if (InventorySystem.Instance != null && InventorySystem.Instance.IsOpen) {
-            UnlockCursor();
+        if (!inputEnabled) {
             return;
         }
 
         Look();
         Move();
-        HandleCursor();
+    }
+
+    public void SetInputEnabled(bool enabled) {
+        inputEnabled = enabled;
     }
 
     private void Look() {
@@ -76,23 +84,12 @@ public class SimpleFPSController : MonoBehaviour {
         controller.Move(move * Time.deltaTime);
     }
 
-    private void HandleCursor() {
-        if (Input.GetKeyDown(KeyCode.LeftAlt)) {
-            bool wasLocked = Cursor.lockState == CursorLockMode.Locked;
-            if (wasLocked) UnlockCursor(); else LockCursor();
-        }
-
-        if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked) {
-            LockCursor();
-        }
-    }
-
-    private static void LockCursor() {
+    public static void LockCursor() {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
-    private static void UnlockCursor() {
+    public static void UnlockCursor() {
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
