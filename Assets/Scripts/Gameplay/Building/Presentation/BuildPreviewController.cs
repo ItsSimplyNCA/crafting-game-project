@@ -217,6 +217,91 @@ namespace Game.Gameplay.Building.Presentation {
             previewRenderers.AddRange(previewInstance.GetComponentsInChildren<Renderer>(true));
         }
 
-        
+        private void ConfigurePreviewInstance(GameObject instance) {
+            if (instance == null) return;
+
+            if (disableBehavioursOnPreview) {
+                MonoBehaviour[] behaviours = instance.GetComponentsInChildren<MonoBehaviour>(true);
+
+                for (int i = 0; i < behaviours.Length; i++) {
+                    if (behaviours[i] == null) continue;
+                    behaviours[i].enabled = false;
+                }
+            }
+
+            if (disableCollidersOnPreview) {
+                Collider[] colliders = instance.GetComponentsInChildren<Collider>(true);
+
+                for (int i = 0; i < colliders.Length; i++) {
+                    if (colliders[i] == null) continue;
+                    colliders[i].enabled = false;
+                }
+            }
+
+            if (makeRigidbodiesKinematic) {
+                Rigidbody[] rigidbodies = instance.GetComponentsInChildren<Rigidbody>(true);
+
+                for (int i = 0; i < rigidbodies.Length; i++) {
+                    if (rigidbodies[i] == null) continue;
+                    
+                    rigidbodies[i].isKinematic = true;
+                    rigidbodies[i].useGravity = false;
+                    rigidbodies[i].linearVelocity = Vector3.zero;
+                    rigidbodies[i].angularVelocity = Vector3.zero;
+                }
+            }
+
+            if (disableShadows) {
+                Renderer[] renderers = instance.GetComponentsInChildren<Renderer>(true);
+
+                for (int i = 0; i < renderers.Length; i++) {
+                    if (renderers[i] == null) continue;
+
+                    renderers[i].shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                    renderers[i].receiveShadows = false;
+                }
+            }
+        }
+
+        private void ApplyPreviewMaterial(Material material) {
+            if (material == null) return;
+
+            for (int i = 0; i < previewRenderers.Count; i++) {
+                Renderer renderer = previewRenderers[i];
+
+                if (renderer == null) continue;
+
+                Material[] materials = new Material[renderer.sharedMaterials.Length];
+
+                for (int j = 0; j < materials.Length; j++) {
+                    materials[j] = material;
+                }
+
+                renderer.sharedMaterials = materials;
+            }
+        }
+
+        private void HidePreview() {
+            IsCurrentPlacementValid = false;
+
+            if (previewInstance != null) {
+                previewInstance.SetActive(false);
+            }
+        }
+
+        private void DestroyPreviewInstance() {
+            previewRenderers.Clear();
+            previewDefinition = null;
+
+            if (previewInstance == null) return;
+
+            if (Application.isPlaying) {
+                Destroy(previewInstance);
+            } else {
+                DestroyImmediate(previewInstance);
+            }
+
+            previewInstance = null;
+        }
     }
 }
