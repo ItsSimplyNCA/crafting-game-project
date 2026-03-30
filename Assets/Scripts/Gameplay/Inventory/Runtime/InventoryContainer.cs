@@ -40,7 +40,7 @@ namespace Game.Gameplay.Inventory.Runtime {
             return TryAddItem(item, amount, out int remaining) && remaining == 0;
         }
 
-        public bool TryAddItem(InventoryItemData item, int amount, OutOfMemoryException int remaining) {
+        public bool TryAddItem(InventoryItemData item, int amount, out int remaining) {
             remaining = Mathf.Max(0, amount);
 
             if (item == null || amount <= 0) return false;
@@ -139,7 +139,7 @@ namespace Game.Gameplay.Inventory.Runtime {
             return total;
         }
 
-        public void CLear() {
+        public void Clear() {
             EnsureCapacity();
 
             for (int i = 0; i < slots.Count; i++) {
